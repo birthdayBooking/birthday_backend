@@ -5,7 +5,7 @@ const partyDetailSchema = new mongoose.Schema(
   {},
   {
     toJSON: { virtuals: true },
-    toObject: { virtuals: true },
+    toObject: { virtuals: true }
   }
 );
 
