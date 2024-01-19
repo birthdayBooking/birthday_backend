@@ -1,12 +1,12 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
-const categorySchema = new mongoose.Schema({
-{},
+const categorySchema = new mongoose.Schema(
+  {},
   {
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
-  },
-});
+  }
+);
 
-const Category = mongoose.model('Category', hostSchema);
+const Category = mongoose.model('Category', categorySchema);
 module.exports = Category;
