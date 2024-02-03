@@ -1,31 +1,60 @@
-const fs = require('fs');
-const cloudinary = require('../config/cloudinary.config');
+const { uploadSingleFile, uploadMultipleFile } = require('../config/cloudinary.config');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
+const cloudinary = require('cloudinary').v2;
 
-exports.uploadImage = catchAsync(async (req, res, next) => {
-  if (!req.file) {
+const uploadSingle = catchAsync(async (req, res, next) => {
+  const { file } = req;
+  if (!file) {
     return next(new AppError('File missing', 404));
   }
 
-  const folderName = 'BirthDate';
-  const result = await cloudinary.uploader.upload(req.file.path, {
-    folder: folderName
-  });
+  const result = await uploadSingleFile(file);
 
-  if (result) {
-    fs.unlinkSync(req.file.path); // remove local file when uploaded to cloudinary successfull
+  req.cloudinaryRes = [result];
+
+  next();
+});
+
+const uploadMultiple = catchAsync(async (req, res, next) => {
+  const { files } = req;
+  if (!files) {
+    return next(new AppError('File missing', 404));
   }
 
-  res.status(200).json({
-    message: 'upload image success',
-    file: {
-      original_url: result.secure_url,
-      advanced_url: cloudinary.url(result.public_id, {
-        height: 100,
-        width: 100,
-        format: 'jpg'
-      })
-    }
-  });
+  const result = await uploadMultipleFile(files);
+
+  req.cloudinaryRes = result;
+
+  next();
 });
+
+const resizeImage = (h, w) => {
+  return (req, res, next) => {
+    const { cloudinaryRes } = req;
+
+    // console.log(cloudinaryRes);
+
+    const resized = cloudinaryRes.map(image => {
+      return {
+        original_url: image.secure_url,
+        resized_url: cloudinary.url(image.public_id, {
+          height: h,
+          width: w,
+          crop: 'scale',
+          format: 'jpg'
+        })
+      };
+    });
+
+    req.images = resized;
+
+    next()
+  };
+};
+
+module.exports = {
+  uploadMultiple,
+  uploadSingle,
+  resizeImage
+};
