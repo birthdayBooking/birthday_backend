@@ -1,6 +1,3 @@
-const User = require('../models/userModel');
-const AppError = require('../utils/appError');
-
 exports.getAllUsers = (req, res) => {
   res.status(500).json({
     status: 'error',
@@ -23,7 +20,7 @@ exports.createUser = (req, res) => {
 };
 
 exports.updateUser = async (req, res, next) => {
-  const { id } = req.params
+  const { id } = req.params;
 
   console.log(req.body);
 
