@@ -1,10 +1,12 @@
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
-const User = require('./../models/userModel');
+const Account = require('./../models/account');
+const Member = require('./../models/member');
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
 const sendEmail = require('./../utils/email');
+const mongoose = require('mongoose');
 
 const signToken = id => {
   return jwt.sign(
@@ -19,35 +21,62 @@ const signToken = id => {
 };
 
 exports.signup = catchAsync(async (req, res, next) => {
-  const newUser = await User.create({
-    name: req.body.name,
-    email: req.body.email,
-    password: req.body.password,
-    passwordConfirm: req.body.passwordConfirm
-  });
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  const { email, username } = req.body;
+  try {
+    // Kiểm tra xem email hoặc username đã được sử dụng chưa
+    const existingUser = await Account.findOne({
+      $or: [{ email }, { username }]
+    });
 
-  const token = signToken(newUser._id);
-
-  res.status(201).json({
-    status: 'success',
-    token,
-    data: {
-      user: newUser
+    if (existingUser) {
+      // Kiểm tra xem email hay username đã được sử dụng và trả về lỗi tương ứng
+      if (existingUser.email === email) {
+        return res.status(409).json({ error: 'Email is already in use' });
+      }
+      return res.status(409).json({ error: 'Username is already in use' });
     }
-  });
+    const newUser = await Account.create({
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      email: req.body.email,
+      username: req.body.username,
+      password: req.body.password,
+      passwordConfirm: req.body.passwordConfirm
+    });
+    // eslint-disable-next-line no-unused-vars
+    const newMember = await Member.create({
+      accountId: newUser._id
+    });
+
+    const token = signToken(newUser._id);
+
+    res.status(201).json({
+      status: 'success',
+      token,
+      data: {
+        account: newUser
+      }
+    });
+  } catch (err) {
+    await session.abortTransaction();
+    session.endSession();
+    return next(err);
+  }
 });
 
 exports.login = catchAsync(async (req, res, next) => {
-  const { email, password } = req.body;
+  const { username, password } = req.body;
 
-  //1) Check if email and password exist
-  if (!email || !password) {
-    return next(new AppError('Please provide email and password', 400));
+  //1) Check if username and password exist
+  if (!username || !password) {
+    return next(new AppError('Please provide username and password', 400));
   }
 
   //2) Check if user exists && password is correct
   //Hàm này để lấy ra email và password, vì password đã bị select: false ở trong model nên phải dùng select('+password')
-  const user = await User.findOne({ email }).select('+password');
+  const user = await Account.findOne({ username }).select('+password');
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError('Incorrect email or password', 401));
   }
@@ -79,7 +108,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   // 2) Verification token
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
   //3) Check if user still exists
-  const currentUser = await User.findById(decoded.id);
+  const currentUser = await Account.findById(decoded.id);
   if (!currentUser) {
     return next(
       new AppError(
@@ -114,7 +143,7 @@ exports.restrictTo = (...roles) => {
 
 exports.forgotPassword = catchAsync(async (req, res, next) => {
   // 1) Get user based on POSTed email
-  const user = await User.findOne({ email: req.body.email });
+  const user = await Account.findOne({ email: req.body.email });
   if (!user) {
     next(new AppError('There is no user with email address', 404));
   }
@@ -160,7 +189,7 @@ exports.resetPassword = async (req, res, next) => {
     .update(req.params.token)
     .digest('hex'); //digest là để mã hóa chuỗi
 
-  const user = User.findOne({
+  const user = Account.findOne({
     passwordResetToken: hashedToken,
     passwordResetExpires: { $gt: Date.now() }
   });
