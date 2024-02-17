@@ -17,10 +17,11 @@ app.use(express.json());
 
 app.use(express.static(`${__dirname}/public`));
 
-// app.use((req, res, next) => {
-//   req.requestTime = new Date().toISOString();
-//   next();
-// });
+app.use('/test', (req, res, next) => {
+  res.json({
+    test: 'success'
+  })
+})
 
 // 3) ROUTES
 // app.use('/api/v1/tours', tourRouter);

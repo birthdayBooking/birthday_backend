@@ -40,7 +40,7 @@ const uploadMultipleFile = async files => {
       fs.unlinkSync(file.path);
     }
 
-    // (3) resize image
+    // (3) resize image 👉🏼 đoạn resize này đã viết thành một middleware riêng để truyền tham số resize ảnh
     // return {
     //   message: 'upload success',
     //   id: resResult.public_id,

@@ -1,9 +1,9 @@
+const cloudinary = require('cloudinary').v2;
 const { uploadSingleFile, uploadMultipleFile } = require('../config/cloudinary.config');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
-const cloudinary = require('cloudinary').v2;
 
-const uploadSingle = catchAsync(async (req, res, next) => {
+const uploadSingleToCloud = catchAsync(async (req, res, next) => {
   const { file } = req;
   if (!file) {
     return next(new AppError('File missing', 404));
@@ -11,12 +11,12 @@ const uploadSingle = catchAsync(async (req, res, next) => {
 
   const result = await uploadSingleFile(file);
 
-  req.cloudinaryRes = [result];
+  req.cloudinaryResponse = [result];
 
   next();
 });
 
-const uploadMultiple = catchAsync(async (req, res, next) => {
+const uploadMultipleToCloud = catchAsync(async (req, res, next) => {
   const { files } = req;
   if (!files) {
     return next(new AppError('File missing', 404));
@@ -24,18 +24,18 @@ const uploadMultiple = catchAsync(async (req, res, next) => {
 
   const result = await uploadMultipleFile(files);
 
-  req.cloudinaryRes = result;
+  req.cloudinaryResponse = result;
 
   next();
 });
 
 const resizeImage = (h, w) => {
   return (req, res, next) => {
-    const { cloudinaryRes } = req;
+    const { cloudinaryResponse } = req;
 
-    // console.log(cloudinaryRes);
+    // console.log(cloudinaryResponse);
 
-    const resized = cloudinaryRes.map(image => {
+    const resized = cloudinaryResponse.map(image => {
       return {
         original_url: image.secure_url,
         resized_url: cloudinary.url(image.public_id, {
@@ -54,7 +54,7 @@ const resizeImage = (h, w) => {
 };
 
 module.exports = {
-  uploadMultiple,
-  uploadSingle,
+  uploadMultipleToCloud,
+  uploadSingleToCloud,
   resizeImage
 };
