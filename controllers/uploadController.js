@@ -49,7 +49,11 @@ const resizeImage = (h, w) => {
 
     req.images = resized;
 
-    next()
+    res.json({
+      resized
+    })
+
+    // next()
   };
 };
 
