@@ -1,5 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
+const cors = require('cors');
+
 const accountRouter = require('./routes/accountRoutes');
 //const uploadRouter = require('./routes/uploadRoutes');
 const partyRouter = require('./routes/partyRouter')
@@ -8,7 +10,12 @@ const serviceRouter = require('./routes/serviceRouter')
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const order = require('./routes/order')
+
+
 const app = express();
+
+app.use(cors()); // Access-Control-Allow-Origin *
+app.options('*', cors());
 
 // 1) MIDDLEWARES
 if (process.env.NODE_ENV === 'development') {
