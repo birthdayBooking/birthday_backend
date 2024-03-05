@@ -4,10 +4,10 @@ const { createParty, getAllParties, getPartyInfo, updateParty, deleteParty } = r
 const router = express.Router();
 
 router.route('/')
-  .get(getAllParties);
-
-router.route('/create')
+  .get(getAllParties)
   .post(createParty);
+
+
 
 router.route('/details/:partyId')
   .get(getPartyInfo)
