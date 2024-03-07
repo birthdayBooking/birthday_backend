@@ -3,7 +3,7 @@ const AppError  = require('../utils/appError')
 
 const multerStorage = multer.diskStorage({
   destination: function(req, file, cb) {
-    cb(null, './uploads');
+    cb(null, './dev-data/img');
   },
   filename: function(req, file, cb) {
     cb(null, `${Date.now()}-${file.originalname}`);
