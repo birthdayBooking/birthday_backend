@@ -5,7 +5,7 @@ const orderSchema = new mongoose.Schema(
   {
     customerId:{
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Account',
+      ref: 'Member',
       required: true
     },
     partyId: {
