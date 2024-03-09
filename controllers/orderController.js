@@ -19,8 +19,8 @@ exports.addItemToCart = async (req, res) => {
 }
 exports.getOrderDetail = async (req, res) => {
     try {
-        const { _id } = req.params
-        const data = await Order.findById({ _id }).populate('Party').populate('Service').populate('Member')
+        const { itemId } = req.params
+        const data = await Order.findById( itemId ).populate('partyId').populate('extraService').populate('customerId')
         res.status(200).json(data || "Not found")
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -28,7 +28,6 @@ exports.getOrderDetail = async (req, res) => {
 }
 exports.deleteOrder = async (req, res) => {
     const { itemId } = req.params;
-
     try {
         const result = await Order.deleteOne({ _id: itemId });
         if (result.deletedCount > 0) {
@@ -41,9 +40,12 @@ exports.deleteOrder = async (req, res) => {
     }
 }
 exports.updateOrder = async (req, res) => {
-    const {itemId} = req.params
+    const { itemId } = req.params
     try {
-        
+        Order.updateOne({ _id: itemId }, req.body)
+            .then(
+                res.status(200).json("update success")
+            )
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

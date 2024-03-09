@@ -1,4 +1,3 @@
-/* eslint-disable import/newline-after-import */
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
@@ -12,7 +11,7 @@ const accountSchema = new mongoose.Schema(
     },
     lastName: {
       type: String,
-      require: [true, 'Please tell us yor last name']
+      require: [true, 'Please tell us your last name']
     },
     email: {
       type: String,
@@ -52,7 +51,8 @@ const accountSchema = new mongoose.Schema(
     },
     passwordChangedAt: Date,
     passwordResetToken: String,
-    passwordResetExpires: Date
+    passwordResetExpires: Date,
+    image: String // Thêm trường ảnh vào schema
   },
   {
     toJSON: { virtuals: true },
