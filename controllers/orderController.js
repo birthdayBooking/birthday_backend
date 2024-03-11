@@ -1,6 +1,18 @@
 //getCartItems, addItemToCart, getOrderDetail, updateOrder, deleteOrder
 const Order = require('../models/orderModel');
 
+function getDate(req) {
+  let { date } = req.body;
+
+  if (!date) {
+    date = new Date();
+  } else {
+    date = new Date(date);
+  }
+
+  return date;
+}
+
 exports.getCartItems = async (req, res) => {
   try {
     const data = await Order.find({});
@@ -48,25 +60,16 @@ exports.deleteOrder = async (req, res) => {
 };
 
 exports.updateOrder = async (req, res) => {
-    const { itemId } = req.params
-    try {
-        Order.updateOne({ _id: itemId }, req.body)
-            .then(
-                res.status(200).json("update success")
-            )
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-}   
+  const { itemId } = req.params;
+  try {
+    Order.updateOne({ _id: itemId }, req.body).then(res.status(200).json('update success'));
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 exports.getTotalBookingByDate = async (req, res, next) => {
-  let { date } = req.body;
-  
-  if (!date) {
-    date = new Date();
-  } else {
-    date = new Date(date)
-  }
+  const date = getDate(req);
 
   const totalOrder = await Order.aggregate([
     {
@@ -81,6 +84,27 @@ exports.getTotalBookingByDate = async (req, res, next) => {
   ]);
   res.status(200).json({
     status: 'success',
-    data: totalOrder
+    stats: totalOrder
+  });
+};
+
+exports.getToalRevanueByDate = async (req, res, next) => {
+  const date = getDate(req);
+
+  const revanue = await Order.aggregate([
+    {
+      $match: { orderDate: { $eq: date } }
+    },
+    {
+      $group: {
+        _id: null,
+        totalRevanue: { $sum: '$total' }
+      }
+    }
+  ]);
+
+  res.status(200).json({
+    status: 'success',
+    stats: revanue
   });
 };
