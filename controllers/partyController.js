@@ -17,7 +17,7 @@ exports.createParty = async (req, res) => {
 };
 exports.getAllParties = async (req, res) => {
     try {
-        const data = await Party.find({}).populate('category');
+        const data = await Party.find({}).populate('category').populate('hostId');
         res.status(200).json(data || []); 
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -27,7 +27,7 @@ exports.getAllParties = async (req, res) => {
 exports.getPartyInfo = async (req, res) => {
     const id = req.params.partyId;
     try {
-        const data = await Party.findById(id).populate('category');
+        const data = await Party.findById(id).populate('category').populate('hostId');
         if (data) {
             res.status(200).json(data);
         } else {

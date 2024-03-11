@@ -1,6 +1,5 @@
 //getCartItems, addItemToCart, getOrderDetail, updateOrder, deleteOrder
 const Order = require('../models/orderModel');
-const catchAsync = require('../utils/catchAsync');
 
 exports.getCartItems = async (req, res) => {
   try {
@@ -10,6 +9,7 @@ exports.getCartItems = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 exports.addItemToCart = async (req, res) => {
   try {
     const newOrder = await Order.create(req.body);
@@ -18,6 +18,7 @@ exports.addItemToCart = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 exports.getOrderDetail = async (req, res) => {
   try {
     const { _id } = req.params;
@@ -30,6 +31,7 @@ exports.getOrderDetail = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 exports.deleteOrder = async (req, res) => {
   const { itemId } = req.params;
 
@@ -44,13 +46,18 @@ exports.deleteOrder = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 exports.updateOrder = async (req, res) => {
-  const { itemId } = req.params;
-  try {
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+    const { itemId } = req.params
+    try {
+        Order.updateOne({ _id: itemId }, req.body)
+            .then(
+                res.status(200).json("update success")
+            )
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}   
 
 exports.getTotalBookingByDate = async (req, res, next) => {
   let { date } = req.body;
