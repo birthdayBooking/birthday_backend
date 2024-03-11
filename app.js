@@ -7,6 +7,7 @@ const uploadRouter = require('./routes/uploadRoutes');
 const partyRouter = require('./routes/partyRouter')
 const categoryRouter = require('./routes/categoryRouter')
 const serviceRouter = require('./routes/serviceRouter')
+const dashboardRouter = require('./routes/dashboardRoutes')
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 //const order = require('./routes/order')
@@ -41,6 +42,7 @@ app.use('/api/v1/services', serviceRouter)
 app.use('/api/v1/orders', orderRouter)
 //app.use('/order', order)
 app.use('/api/v1/upload', uploadRouter);
+app.use('/api/v1/stats', dashboardRouter);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

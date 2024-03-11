@@ -71,7 +71,7 @@ exports.updateOrder = async (req, res) => {
 exports.getTotalBookingByDate = async (req, res, next) => {
   const date = getDate(req);
 
-  const totalOrder = await Order.aggregate([
+  const totalBooking = await Order.aggregate([
     {
       $match: { orderDate: { $eq: date } }
     },
@@ -84,7 +84,7 @@ exports.getTotalBookingByDate = async (req, res, next) => {
   ]);
   res.status(200).json({
     status: 'success',
-    stats: totalOrder
+    stats: totalBooking
   });
 };
 
