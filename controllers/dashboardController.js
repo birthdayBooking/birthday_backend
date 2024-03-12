@@ -60,15 +60,52 @@ const getHighestBookingParty = async (req, res, next) => {
 
   const { _id } = partyStats[0];
 
-  const party = await Party.findById(_id).lean()
+  const party = await Party.findById(_id).lean();
 
   res.status(200).json({
     party
   });
 };
 
+const getMonthlyBooking = async (req, res, next) => {
+  const year = req.params.year * 1;
+
+  const plan = await Order.aggregate([
+    {
+      $match: {
+        orderDate: {
+          $gte: new Date(`${year}-01-01`),
+          $lte: new Date(`${year}-12-31`)
+        }
+      }
+    },
+    {
+      $group: {
+        _id: { $month: '$orderDate' },
+        numsParty: { $sum: 1 },
+        partys: { $push: '$_id' }
+      }
+    },
+    {
+      $addFields: { month: '$_id' }
+    },
+    {
+        $project: {
+        _id: false
+      }
+    },
+  ]);
+
+  res.status(200).json({
+    status: 'success',
+    total: plan.length,
+    plan
+  });
+};
+
 module.exports = {
   getAnalyticsOfSystem,
   getPartyStats,
-  getHighestBookingParty
+  getHighestBookingParty,
+  getMonthlyBooking
 };
