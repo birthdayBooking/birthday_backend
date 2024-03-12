@@ -5,29 +5,36 @@ const accountSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, 'Please tell us your  name!'],
-
+      required: [true, 'Please tell us your  name!']
     },
-
+    username: {
+      type: String,
+      unique: true
+    },
+    password: {
+      type: String,
+      minlength: 8,
+      select: false
+    },
     email: {
       type: String,
       required: [true, 'Please provide your email!'],
       unique: true,
       lowercase: true,
-      validate: [validator.isEmail, 'Please provide a valid email'],
+      validate: [validator.isEmail, 'Please provide a valid email']
     },
     avatar: {
       type: String,
-      require: false,
+      require: false
     },
     role: {
       type: String,
       enum: {
         values: ['member', 'admin', 'host'],
-        message: 'Role is either',
+        message: 'Role is either'
       },
-      default: 'member',
-    },
+      default: 'member'
+    }
 
     // passwordChangedAt: Date,
     // passwordResetToken: String,
@@ -35,7 +42,7 @@ const accountSchema = new mongoose.Schema(
   },
   {
     toJSON: { virtuals: true },
-    toObject: { virtuals: true },
+    toObject: { virtuals: true }
   }
 );
 
