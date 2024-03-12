@@ -13,10 +13,10 @@ const orderSchema = new mongoose.Schema(
       ref: 'Party',
       required: true
     },
-    extraService: {
+    extraService: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Service'
-    },
+    }],
     total: {
       type: Number,
       required: true
@@ -31,7 +31,6 @@ const orderSchema = new mongoose.Schema(
       default: 'pending'
     },
     paymentMethod:  String,
-    shippingAddress: String,
     notes: String,
   },
   {

@@ -4,6 +4,18 @@ const validator = require('validator');
 const PartySchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
+    hostId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Account',
+      required: true,
+      validate: {
+        validator: async function (hostId) {
+          const hostAccount = await mongoose.model('Account').findOne({ _id: hostId, role: 'host' });
+          return !!hostAccount;
+        },
+        message: 'Account Id must belong to a user with role "host"',
+      },
+    },
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Category',

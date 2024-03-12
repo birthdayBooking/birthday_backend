@@ -7,8 +7,6 @@ router.route('/')
   .get(getAllParties)
   .post(createParty);
 
-
-
 router.route('/details/:partyId')
   .get(getPartyInfo)
   .patch(updateParty)
