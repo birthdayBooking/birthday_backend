@@ -1,6 +1,5 @@
 const express = require('express');
-//const userController = require('../controllers/memberController');
-const { getAllUsers } = require('../controllers/memberController')
+const userController = require('../controllers/memberController');
 const authController = require('../controllers/authController');
 
 const router = express.Router();
@@ -11,10 +10,7 @@ const router = express.Router();
 // router.post('/forgotPassword', authController.forgotPassword);
 // router.patch('/resetPassword/:token', authController.resetPassword);
 
-router
-  .route('/')
-  .get(getAllUsers)
-  //.post(userController.createUser);
+router.route('/').get(userController.getAllUsers).post(userController.createUser);
 
 // router
 //   .route('/:id')
