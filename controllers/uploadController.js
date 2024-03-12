@@ -33,12 +33,10 @@ const resizeImage = (h, w) => {
   return (req, res, next) => {
     const { cloudinaryResponse } = req;
 
-    // console.log(cloudinaryResponse);
-
     const resized = cloudinaryResponse.map(image => {
       return {
-        original_url: image.secure_url,
-        resized_url: cloudinary.url(image.public_id, {
+        // original_url: image.secure_url,
+          url: cloudinary.url(image.public_id, {
           height: h,
           width: w,
           crop: 'scale',
@@ -51,7 +49,7 @@ const resizeImage = (h, w) => {
 
     res.json({
       resized
-    })
+    });
 
     // next()
   };

@@ -1,4 +1,3 @@
-/* eslint-disable import/newline-after-import */
 const mongoose = require('mongoose');
 const validator = require('validator');
 
@@ -7,6 +6,7 @@ const accountSchema = new mongoose.Schema(
     name: {
       type: String,
       required: [true, 'Please tell us your  name!'],
+
     },
 
     email: {
@@ -28,6 +28,7 @@ const accountSchema = new mongoose.Schema(
       },
       default: 'member',
     },
+
     // passwordChangedAt: Date,
     // passwordResetToken: String,
     // passwordResetExpires: Date,
