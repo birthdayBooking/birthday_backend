@@ -2,7 +2,7 @@ const Account = require('../models/account');
 
 exports.getAllUsers = (req, res) => {
   res.status(200).json({
-    message: 'abc ddfdf'
+    message: 'abc'
   });
 };
 
