@@ -8,8 +8,7 @@ const accountSchema = new mongoose.Schema(
       required: [true, 'Please tell us your  name!']
     },
     username: {
-      type: String,
-      unique: true
+      type: String
     },
     password: {
       type: String,
