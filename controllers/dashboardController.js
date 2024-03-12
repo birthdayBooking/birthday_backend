@@ -1,8 +1,9 @@
 const Account = require('../models/account');
 const Order = require('../models/orderModel');
 const Party = require('../models/partyModel');
+const { getSelectData } = require('../utils');
 
-const getAnalyticsOfSystem = async (req, res, next) => {
+const getAnalyticsOfSystem = async (req, res) => {
   const memberCount = await Account.find({ role: 'member' }).count();
   const admin = await Account.find({ role: 'admin' }).count();
   const host = await Account.find({ role: 'host' }).count();
@@ -16,7 +17,7 @@ const getAnalyticsOfSystem = async (req, res, next) => {
   });
 };
 
-const getPartyStats = async (req, res, next) => {
+const getPartyStats = async (req, res) => {
   const partyStats = await Party.aggregate([
     {
       $group: {
@@ -40,34 +41,48 @@ const getPartyStats = async (req, res, next) => {
   });
 };
 
-const getHighestBookingParty = async (req, res, next) => {
-  const partyStats = await Order.aggregate([
+const getTopBookingParty = async (req, res) => {
+  const limitNumber = req.query.top;
+
+  // (1)   aggregate number of party id in order,
+  // (1.1) sort desc
+  // (1.2) limit response to get top
+  const mostPopularBookingParty = await Order.aggregate([
     {
       $group: {
         _id: '$partyId',
-        count: { $sum: 1 }
+        numsParty: { $sum: 1 },
+        partyId: { $first: '$partyId' }
       }
     },
     {
       $sort: {
-        count: -1
+        numsParty: -1
       }
     },
     {
-      $limit: 1
+      $limit: +limitNumber || 1
     }
   ]);
 
-  const { _id } = partyStats[0];
+  // (2) query party by id
+  const listParty = mostPopularBookingParty.map(item => {
+    return Party.findById(item._id)
+      .lean()
+      .select(getSelectData(['name', 'price', 'rating', 'createdAt']));
+  });
 
-  const party = await Party.findById(_id).lean();
+  const topBookingParty = await Promise.all(listParty);
 
+  // (3) return result
   res.status(200).json({
-    party
+    status: 'success',
+    total: topBookingParty.length,
+    topBookingParty
   });
 };
 
-const getMonthlyBooking = async (req, res, next) => {
+const getMonthlyBooking = async (req, res) => {
   const year = req.params.year * 1;
 
   const plan = await Order.aggregate([
@@ -90,10 +105,10 @@ const getMonthlyBooking = async (req, res, next) => {
       $addFields: { month: '$_id' }
     },
     {
-        $project: {
+      $project: {
         _id: false
       }
-    },
+    }
   ]);
 
   res.status(200).json({
@@ -103,9 +118,24 @@ const getMonthlyBooking = async (req, res, next) => {
   });
 };
 
+const getTopParty = async (req, res, next) => {
+  const topParty = await Party.aggregate([
+    {
+      $sort: { price: 1 }
+    }
+  ]);
+
+  res.status(200).json({
+    status: 'success',
+    total: topParty.length,
+    topParty
+  });
+};
+
 module.exports = {
   getAnalyticsOfSystem,
   getPartyStats,
-  getHighestBookingParty,
-  getMonthlyBooking
+  getTopBookingParty,
+  getMonthlyBooking,
+  getTopParty
 };
