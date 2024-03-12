@@ -16,7 +16,13 @@ exports.getUser = (req, res) => {
 exports.createUser = async (req, res) => {
   try {
     const data = req.body;
-    console.log(data);
+    // Check if the user already exists based on a unique identifier (e.g., username)
+    const existingUser = await Account.findOne({ email: data.email });
+
+    if (existingUser) {
+      // If the user already exists, return the existing user
+      return res.status(200).json(existingUser);
+    }
     const result = await Account.create(data);
     console.log(result);
     res.status(201).json(result);
@@ -31,7 +37,7 @@ exports.createUser = async (req, res) => {
 };
 
 exports.updateUser = async (req, res, next) => {
-  const { id } = req.params;
+  // const { id } = req.params;
 
   console.log(req.body);
 
