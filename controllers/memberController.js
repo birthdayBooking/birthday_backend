@@ -2,30 +2,36 @@ const Account = require('../models/account');
 
 exports.getAllUsers = (req, res) => {
   res.status(200).json({
-    message: 'abc',
+    message: 'abc'
   });
 };
 
 exports.getUser = (req, res) => {
   res.status(500).json({
     status: 'error',
-    message: 'This route is not yet defined!',
+    message: 'This route is not yet defined!'
   });
 };
 
 exports.createUser = async (req, res) => {
   try {
     const data = req.body;
-    console.log(data);
+
     const result = await Account.create(data);
-    res.status(201).json(result);
+
+    res.status(201).json({
+      status: 'success',
+      data: {
+        account: result
+      }
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 
   res.status(500).json({
     status: 'error',
-    message: 'This route is not yet defined!',
+    message: 'This route is not yet defined!'
   });
 };
 
@@ -38,13 +44,13 @@ exports.updateUser = async (req, res, next) => {
 
   res.status(500).json({
     status: 'error',
-    message: 'This route is not yet defined!',
+    message: 'This route is not yet defined!'
   });
 };
 
 exports.deleteUser = (req, res) => {
   res.status(500).json({
     status: 'error',
-    message: 'This route is not yet defined!',
+    message: 'This route is not yet defined!'
   });
 };
