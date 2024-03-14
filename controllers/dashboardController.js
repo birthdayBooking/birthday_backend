@@ -1,7 +1,7 @@
 const Account = require('../models/account');
 const Order = require('../models/orderModel');
 const Party = require('../models/partyModel');
-const { getSelectData } = require('../utils');
+const { getSelectData, getDate } = require('../utils');
 
 const getAnalyticsOfSystem = async (req, res) => {
   const memberCount = await Account.find({ role: 'member' }).count();
@@ -132,10 +132,68 @@ const getTopParty = async (req, res, next) => {
   });
 };
 
+const getTotalBookingByDate = async (req, res, next) => {
+  const date = getDate(req);
+
+  console.log(date);
+  const totalBooking = await Order.aggregate([
+    {
+      $match: { orderDate: { $eq: date } }
+    },
+    {
+      $group: {
+        _id: null,
+        totalOrders: { $sum: 1 }
+      }
+    }
+  ]);
+  res.status(200).json({
+    status: 'success',
+    stats: totalBooking
+  });
+};
+
+const getTotalRevanueByDate = async (req, res, next) => {
+  const { date } = req.query;
+
+  let startDate;
+  let endDate;
+  let dateSelected;
+
+  if (date.includes(',')) {
+    startDate = new Date(date.split(',')[0]);
+    endDate = new Date(date.split(',')[1]);
+    endDate.setDate(endDate.getDate() + 1);
+    dateSelected = { $gte: startDate, $lte: endDate };
+  } else {
+    dateSelected = { $eq: new Date(date) };
+  }
+
+  const revanue = await Order.aggregate([
+    {
+      $match: { orderDate: dateSelected }
+    },
+    {
+      $group: {
+        _id: null,
+        totalRevanue: { $sum: '$total' },
+        revanueByGr: { $push: '$total' }
+      }
+    }
+  ]);
+
+  res.status(200).json({
+    status: 'success',
+    stats: revanue
+  });
+};
+
 module.exports = {
   getAnalyticsOfSystem,
   getPartyStats,
   getTopBookingParty,
   getMonthlyBooking,
-  getTopParty
+  getTopParty,
+  getTotalRevanueByDate,
+  getTotalBookingByDate
 };
