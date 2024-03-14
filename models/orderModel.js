@@ -17,13 +17,16 @@ const orderSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Service'
     }],
+    time: {
+      type: String
+    }
+    ,
     total: {
       type: Number,
       required: true
     },
     orderDate: {
-      type: Date,
-      default: Date.now
+      type: Date
     },
     status: {
       type: String,
