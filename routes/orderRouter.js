@@ -12,5 +12,12 @@ router
   .get(getOrderDetail)
   .patch(protect, updateOrder)
   .delete(deleteOrder);
+router
+  .route('/total-order')
+  .get(catchAsync(getTotalBookingByDate));
+
+router
+  .route('/create')
+  .post(createOrder); 
 
 module.exports = router;

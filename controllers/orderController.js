@@ -1,7 +1,14 @@
 //getCartItems, addItemToCart, getOrderDetail, updateOrder, deleteOrder
 const Order = require('../models/orderModel');
 
-
+exports.createOrder = async (req, res) => {
+  try {
+    const newOrder = await Order.create(req.body);
+    res.status(201).json(newOrder);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 exports.getCartItems = async (req, res) => {
   try {
@@ -58,4 +65,29 @@ exports.updateOrder = async (req, res) => {
   }
 };
 
+exports.getTotalBookingByDate = async (req, res, next) => {
+  let { date } = req.body;
+  
+  if (!date) {
+    date = new Date();
+  } else {
+    date = new Date(date)
+  }
+
+  const totalOrder = await Order.aggregate([
+    {
+      $match: { orderDate: { $eq: date } }
+    },
+    {
+      $group: {
+        _id: null,
+        totalOrders: { $sum: 1 }
+      }
+    }
+  ]);
+  res.status(200).json({
+    status: 'success',
+    data: totalOrder
+  });
+};
 
