@@ -39,12 +39,12 @@ router.post("/create_payment_url", function (req, res, next) {
     req.socket.remoteAddress ||
     req.connection.socket.remoteAddress;
 
-  let config = require("config");
-
-  let tmnCode = config.get("vnp_TmnCode");
-  let secretKey = config.get("vnp_HashSecret");
-  let vnpUrl = config.get("vnp_Url");
-  let returnUrl = config.get("vnp_ReturnUrl");
+  let config = require(".//../config/default.json");
+  console.log(config)
+  let tmnCode = config.vnp_TmnCode;
+  let secretKey = config.vnp_HashSecret;
+  let vnpUrl = config.vnp_Url;
+  let returnUrl = config.vnp_ReturnUrl;
   let orderId = moment(date).format("DDHHmmss");
   let total = req.body.total;
   let bankCode = req.body.bankCode;
@@ -80,6 +80,7 @@ router.post("/create_payment_url", function (req, res, next) {
   let signed = hmac.update(new Buffer(signData, "utf-8")).digest("hex");
   vnp_Params["vnp_SecureHash"] = signed;
   vnpUrl += "?" + querystring.stringify(vnp_Params, { encode: false });
+  console.log(vnpUrl)
 
   res.redirect(vnpUrl);
 });
@@ -94,9 +95,9 @@ router.get("/vnpay_return", function (req, res, next) {
 
   vnp_Params = sortObject(vnp_Params);
 
-  let config = require("config");
-  let tmnCode = config.get("vnp_TmnCode");
-  let secretKey = config.get("vnp_HashSecret");
+  let config = require(".//../config/default.json");
+  let tmnCode = config.vnp_TmnCode;
+  let secretKey = config.vnp_HashSecret;
 
   let querystring = require("qs");
   let signData = querystring.stringify(vnp_Params, { encode: false });
@@ -124,8 +125,8 @@ router.get("/vnpay_ipn", function (req, res, next) {
   delete vnp_Params["vnp_SecureHashType"];
 
   vnp_Params = sortObject(vnp_Params);
-  let config = require("config");
-  let secretKey = config.get("vnp_HashSecret");
+  let config = require(".//../config/default.json");
+  let secretKey = config.vnp_HashSecret;
   let querystring = require("qs");
   let signData = querystring.stringify(vnp_Params, { encode: false });
   let crypto = require("crypto");
@@ -176,12 +177,12 @@ router.post("/querydr", function (req, res, next) {
   process.env.TZ = "Asia/Ho_Chi_Minh";
   let date = new Date();
 
-  let config = require("config");
+  let config = require(".//../config/default.json");
   let crypto = require("crypto");
 
-  let vnp_TmnCode = config.get("vnp_TmnCode");
-  let secretKey = config.get("vnp_HashSecret");
-  let vnp_Api = config.get("vnp_Api");
+  let vnp_TmnCode = config.vnp_TmnCode;
+  let secretKey = config.vnp_HashSecret;
+  let vnp_Api = config.vnp_Api;
 
   let vnp_TxnRef = req.body.orderId;
   let vnp_TransactionDate = req.body.transDate;
@@ -252,12 +253,12 @@ router.post("/refund", function (req, res, next) {
   process.env.TZ = "Asia/Ho_Chi_Minh";
   let date = new Date();
 
-  let config = require("config");
+  let config = require(".//../config/default.json");
   let crypto = require("crypto");
 
-  let vnp_TmnCode = config.get("vnp_TmnCode");
-  let secretKey = config.get("vnp_HashSecret");
-  let vnp_Api = config.get("vnp_Api");
+  let vnp_TmnCode = config.vnp_TmnCode;
+  let secretKey = config.vnp_HashSecret;
+  let vnp_Api = config.vnp_Api;
 
   let vnp_TxnRef = req.body.orderId;
   let vnp_TransactionDate = req.body.transDate;
