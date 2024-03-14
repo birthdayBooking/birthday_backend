@@ -57,16 +57,13 @@ exports.deleteOrder = async (req, res) => {
 };
 
 exports.updateOrder = async (req, res) => {
-    const { itemId } = req.params
-    try {
-        Order.updateOne({ _id: itemId }, req.body)
-            .then(
-                res.status(200).json("update success")
-            )
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-}   
+  const { itemId } = req.params;
+  try {
+    Order.updateOne({ _id: itemId }, req.body).then(res.status(200).json('update success'));
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 exports.getTotalBookingByDate = async (req, res, next) => {
   let { date } = req.body;
@@ -93,28 +90,4 @@ exports.getTotalBookingByDate = async (req, res, next) => {
     data: totalOrder
   });
 };
-exports.getTotalBookingByDate = async (req, res, next) => {
-  let { date } = req.body;
-  
-  if (!date) {
-    date = new Date();
-  } else {
-    date = new Date(date)
-  }
 
-  const totalOrder = await Order.aggregate([
-    {
-      $match: { orderDate: { $eq: date } }
-    },
-    {
-      $group: {
-        _id: null,
-        totalOrders: { $sum: 1 }
-      }
-    }
-  ]);
-  res.status(200).json({
-    status: 'success',
-    data: totalOrder
-  });
-};
