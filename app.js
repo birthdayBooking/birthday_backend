@@ -94,10 +94,12 @@ app.use('/api/v1/accounts', accountRouter);
 
 app.use('/api/v1/messages', messageRoutes);
 app.use('/api/v1/parties', partyRouter);
-app.use('/api/v1/categories', categoryRouter);
-app.use('/api/v1/services', serviceRouter);
-app.use('/api/v1/orders', orderRouter);
-app.use('/order', order);
+
+app.use('/api/v1/categories', categoryRouter)
+app.use('/api/v1/services', serviceRouter)
+app.use('/api/v1/orders', orderRouter)
+app.use('/order', order)
+
 app.use('/api/v1/upload', uploadRouter);
 app.use('/api/v1/stats', dashboardRouter);
 
