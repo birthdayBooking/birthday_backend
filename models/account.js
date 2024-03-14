@@ -6,19 +6,10 @@ const crypto = require('crypto');
 const accountSchema = new mongoose.Schema(
   {
     firstName: {
-      type: String,
-      required: [true, 'Please tell us your first name!']
+      type: String
     },
     lastName: {
-      type: String,
-      require: [true, 'Please tell us your last name']
-    },
-    email: {
-      type: String,
-      required: [true, 'Please provide your email!'],
-      unique: true,
-      lowercase: true,
-      validate: [validator.isEmail, 'Please provide a valid email']
+      type: String
     },
     username: {
       type: String,
@@ -41,6 +32,21 @@ const accountSchema = new mongoose.Schema(
         message: 'Passwords are not the same!'
       }
     },
+    name: {
+      type: String,
+      required: [true, 'Please tell us your  name!']
+    },
+    email: {
+      type: String,
+      required: [true, 'Please provide your email!'],
+      unique: true,
+      lowercase: true,
+      validate: [validator.isEmail, 'Please provide a valid email']
+    },
+    avatar: {
+      type: String,
+      require: false
+    },
     role: {
       type: String,
       enum: {
@@ -48,11 +54,11 @@ const accountSchema = new mongoose.Schema(
         message: 'Role is either'
       },
       default: 'member'
-    },
-    passwordChangedAt: Date,
-    passwordResetToken: String,
-    passwordResetExpires: Date,
-    image: String // Thêm trường ảnh vào schema
+    }
+
+    // passwordChangedAt: Date,
+    // passwordResetToken: String,
+    // passwordResetExpires: Date,
   },
   {
     toJSON: { virtuals: true },
@@ -77,19 +83,13 @@ accountSchema.pre('save', function(next) {
   next();
 });
 
-accountSchema.methods.correctPassword = async function(
-  candidatePassword,
-  userPassword
-) {
+accountSchema.methods.correctPassword = async function(candidatePassword, userPassword) {
   return await bcrypt.compare(candidatePassword, userPassword);
 };
 
 accountSchema.methods.changedPasswordAfter = function(JWTTimestamp) {
   if (this.passwordChangedAt) {
-    const changedTimestamp = parseInt(
-      this.passwordChangedAt.getTime() / 1000,
-      10
-    );
+    const changedTimestamp = parseInt(this.passwordChangedAt.getTime() / 1000, 10);
 
     return JWTTimestamp < changedTimestamp;
   }

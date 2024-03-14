@@ -11,7 +11,7 @@ router
 router
   .route('/details/:itemId')
   .get(getOrderDetail)
-  .patch(protect,updateOrder)
+  .patch(protect, updateOrder)
   .delete(deleteOrder);
 router
   .route('/total-order')
