@@ -19,11 +19,12 @@ const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 
 const app = express();
+app.set('view engine', 'jade');
 app.use(cors());
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ['http://localhost:3000', 'http://localhost:5173'],
+    origin: '*',
     methods: ['GET', 'POST']
   }
 });
@@ -98,7 +99,7 @@ app.use('/api/v1/parties', partyRouter);
 app.use('/api/v1/categories', categoryRouter)
 app.use('/api/v1/services', serviceRouter)
 app.use('/api/v1/orders', orderRouter)
-app.use('/order', order)
+app.use('/api/v1/payment', order)
 
 app.use('/api/v1/upload', uploadRouter);
 app.use('/api/v1/stats', dashboardRouter);
