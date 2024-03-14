@@ -3,6 +3,23 @@ const Order = require('../models/orderModel');
 const Party = require('../models/partyModel');
 const { getSelectData, getDate } = require('../utils');
 
+function getDateSelection(date) {
+  let startDate;
+  let endDate;
+  let dateSelected;
+
+  if (date.includes(',')) {
+    startDate = new Date(date.split(',')[0]);
+    endDate = new Date(date.split(',')[1]);
+    endDate.setDate(endDate.getDate() + 1);
+    dateSelected = { $gte: startDate, $lte: endDate };
+  } else {
+    dateSelected = { $eq: new Date(date) };
+  }
+
+  return dateSelected
+}
+
 const getAnalyticsOfSystem = async (req, res) => {
   const memberCount = await Account.find({ role: 'member' }).count();
   const admin = await Account.find({ role: 'admin' }).count();
@@ -133,12 +150,14 @@ const getTopParty = async (req, res, next) => {
 };
 
 const getTotalBookingByDate = async (req, res, next) => {
-  const date = getDate(req);
+  const { date } = req.query;
 
-  console.log(date);
+  const dateSelection = getDateSelection(date);
+
+  // console.log(dateSelection)
   const totalBooking = await Order.aggregate([
     {
-      $match: { orderDate: { $eq: date } }
+      $match: { orderDate: dateSelection }
     },
     {
       $group: {
@@ -156,28 +175,17 @@ const getTotalBookingByDate = async (req, res, next) => {
 const getTotalRevanueByDate = async (req, res, next) => {
   const { date } = req.query;
 
-  let startDate;
-  let endDate;
-  let dateSelected;
-
-  if (date.includes(',')) {
-    startDate = new Date(date.split(',')[0]);
-    endDate = new Date(date.split(',')[1]);
-    endDate.setDate(endDate.getDate() + 1);
-    dateSelected = { $gte: startDate, $lte: endDate };
-  } else {
-    dateSelected = { $eq: new Date(date) };
-  }
+  const dateSelection = getDateSelection(date);
 
   const revanue = await Order.aggregate([
     {
-      $match: { orderDate: dateSelected }
+      $match: { orderDate: dateSelection }
     },
     {
       $group: {
         _id: null,
         totalRevanue: { $sum: '$total' },
-        revanueByGr: { $push: '$total' }
+        // revanueByGr: { $push: '$total' }
       }
     }
   ]);
@@ -187,6 +195,8 @@ const getTotalRevanueByDate = async (req, res, next) => {
     stats: revanue
   });
 };
+
+
 
 module.exports = {
   getAnalyticsOfSystem,
