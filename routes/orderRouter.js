@@ -19,9 +19,10 @@ router
 
 router
   .route('/create')
-  .post(orderController.createOrder)
-  .get(orderController.getOrderByCustomerId);
-  
+  .post(orderController.createOrder);
+router
+.route('/getByIdCustomer/:customerId')
+.get(orderController.getOrderByCustomerId)
 router
   .post('/orders/addService', orderController.addServiceToOrder);
 module.exports = router;
