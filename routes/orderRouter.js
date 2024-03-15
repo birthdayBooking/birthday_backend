@@ -1,24 +1,27 @@
 const express = require('express');
-const { getCartItems, addItemToCart, getOrderDetail, updateOrder, deleteOrder, getTotalBookingByDate, createOrder } = require('../controllers/orderController');
+const orderController = require('./../controllers/orderController')
 const { protect } = require('../controllers/authController');
 const catchAsync = require('../utils/catchAsync');
 const router = express.Router();
 
 router
   .route('/')
-  .get(getCartItems)
-  .post(addItemToCart);
+  .get(orderController.getCartItems)
+  .post(orderController.addItemToCart);
 router
   .route('/details/:itemId')
-  .get(getOrderDetail)
-  .patch(protect, updateOrder)
-  .delete(deleteOrder);
+  .get(orderController.getOrderDetail)
+  .patch(protect, orderController.updateOrder)
+  .delete(orderController.deleteOrder);
 router
   .route('/total-order')
-  .get(catchAsync(getTotalBookingByDate));
+  .get(catchAsync(orderController.getTotalBookingByDate));
 
 router
   .route('/create')
-  .post(createOrder); 
-
+  .post(orderController.createOrder)
+  .get(orderController.getOrderByCustomerId);
+  
+router
+  .post('/orders/addService', orderController.addServiceToOrder);
 module.exports = router;
