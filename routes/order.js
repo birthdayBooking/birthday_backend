@@ -7,15 +7,17 @@ let router = express.Router();
 const $ = require('jquery');
 const request = require('request');
 const moment = require('moment');
+const { type } = require('os');
 
 router.get('/', function(req, res, next) {
   res.render('orderlist', { title: 'Danh sách đơn hàng' });
 });
 
 router.get('/create_payment_url', function(req, res, next) {
-  const amount = req.query.amount;
-  console.log(amount);
-  res.render('order', { title: 'Tạo mới đơn hàng', amount: amount });
+  const money = req.query.amount;
+  const formatMoney = Number(money).toLocaleString('it-IT', { style: 'currency', currency: 'VND' });
+
+  res.render('order', { title: 'Tạo mới đơn hàng', amount: formatMoney });
 });
 
 router.get('/querydr', function(req, res, next) {
@@ -30,6 +32,9 @@ router.get('/refund', function(req, res, next) {
 
 router.post('/create_payment_url', function(req, res, next) {
   process.env.TZ = 'Asia/Ho_Chi_Minh';
+  const money = req.body.total;
+  //format money to number
+  const formatAmount = money.replace(/[^0-9]/g, '');
 
   let date = new Date();
   let createDate = moment(date).format('YYYYMMDDHHmmss');
@@ -37,13 +42,12 @@ router.post('/create_payment_url', function(req, res, next) {
   let ipAddr = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
 
   let config = require('.//../config/default.json');
-  console.log(config);
   let tmnCode = config.vnp_TmnCode;
   let secretKey = config.vnp_HashSecret;
   let vnpUrl = config.vnp_Url;
   let returnUrl = config.vnp_ReturnUrl;
   let orderId = moment(date).format('DDHHmmss');
-  let total = req.body.total * 100;
+  let total = formatAmount * 100;
   let bankCode = req.body.bankCode;
 
   let locale = req.body.language;
