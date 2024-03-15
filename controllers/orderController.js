@@ -96,7 +96,6 @@ exports.updateOrder = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 exports.getOrderByCustomerId = async (req, res) => {
   const { customerId } = req.params;
   try {
