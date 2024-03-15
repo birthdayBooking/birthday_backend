@@ -24,7 +24,6 @@ exports.createUser = async (req, res) => {
       return res.status(200).json(existingUser);
     }
     const result = await Account.create(data);
-    console.log(result);
     res.status(201).json(result);
   } catch (error) {
     res.status(500).json({ message: error.message });
