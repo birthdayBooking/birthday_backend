@@ -1,5 +1,6 @@
 //createParty, getAllParties, getPartyInfo, updateParty, deleteParty
 const Party = require('../models/partyModel')
+const Account = require('../models/account')
 exports.createParty = async (req, res) => {
     try {
         const nameExist = await Party.find({ name: req.body.name });
@@ -18,7 +19,7 @@ exports.createParty = async (req, res) => {
 exports.getAllParties = async (req, res) => {
     try {
         const data = await Party.find({}).populate('category').populate('hostId');
-        res.status(200).json(data || []); 
+        res.status(200).json(data || []);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -44,17 +45,24 @@ exports.updateParty = async (req, res) => {
 
     try {
         const existingParty = await Party.findOne({ name: updateData.name });
+        const isHost = await Account.findOne({ _id: updateData.hostId, role: 'host' });
 
         if (existingParty) {
-            res.status(400).json({ message: 'Name already exists' });
-        } else {
-            await Party.findOneAndUpdate({ _id: partyId }, updateData);
-            res.status(200).json({ message: 'Update OK' });
+            return res.status(400).json({ message: 'Name already exists' });
         }
+        
+        if (!isHost) {
+            return res.status(500).json("Account must be a Host to Update");
+        }
+
+        await Party.findOneAndUpdate({ _id: partyId }, updateData);
+
+        res.status(200).json({ message: 'Update OK' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
+
 
 exports.deleteParty = async (req, res) => {
     const partyId = req.params.partyId;
