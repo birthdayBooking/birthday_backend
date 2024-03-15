@@ -18,7 +18,39 @@ exports.getCartItems = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+exports.addServiceToOrder = async (req, res) => {
+  try {
+      const { orderId, serviceId } = req.body;
 
+      // Tìm đơn đặt hàng theo ID
+      const order = await Order.findById(orderId);
+
+      if (!order) {
+          return res.status(404).json({
+              status: 'fail',
+              message: 'Order not found'
+          });
+      }
+
+      // Thêm dịch vụ vào đơn đặt hàng
+      order.services.push(serviceId);
+
+      // Lưu đơn đặt hàng đã cập nhật
+      await order.save();
+
+      res.status(200).json({
+          status: 'success',
+          data: {
+              order
+          }
+      });
+  } catch (err) {
+      res.status(400).json({
+          status: 'error',
+          message: err.message
+      });
+  }
+};
 exports.addItemToCart = async (req, res) => {
   try {
     const newOrder = await Order.create(req.body);
@@ -60,6 +92,15 @@ exports.updateOrder = async (req, res) => {
   const { itemId } = req.params;
   try {
     Order.updateOne({ _id: itemId }, req.body).then(res.status(200).json('update success'));
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+exports.getOrderByCustomerId = async (req, res) => {
+  const { customerId } = req.params;
+  try {
+    const orders = await Order.find({ customerId: customerId });
+    res.status(200).json({ status: 'success', data: orders });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

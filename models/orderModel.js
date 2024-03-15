@@ -35,7 +35,7 @@ const orderSchema = new mongoose.Schema(
     },
     paymentMethod:  String,
     notes: String,
-  },
+  }, 
   {
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
