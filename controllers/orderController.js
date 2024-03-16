@@ -62,8 +62,8 @@ exports.addItemToCart = async (req, res) => {
 
 exports.getOrderDetail = async (req, res) => {
   try {
-    const { _id } = req.params;
-    const data = await Order.findById({ _id })
+    const  _id  = req.params.orderId;
+    const data = await Order.findById(_id)
       .populate('Party')
       .populate('Service')
       .populate('Member');
