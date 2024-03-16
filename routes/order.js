@@ -63,7 +63,7 @@ router.post("/create_payment_url", function (req, res, next) {
   vnp_Params["vnp_TxnRef"] = orderId;
   vnp_Params["vnp_OrderInfo"] = "Thanh toan cho ma GD:" + orderId;
   vnp_Params["vnp_OrderType"] = "other";
-  vnp_Params["vnp_Amount"] = total * 100;
+  vnp_Params["vnp_Amount"] = total * 1;
   vnp_Params["vnp_ReturnUrl"] = returnUrl;
   vnp_Params["vnp_IpAddr"] = ipAddr;
   vnp_Params["vnp_CreateDate"] = createDate;
