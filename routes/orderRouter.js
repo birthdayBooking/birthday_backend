@@ -25,7 +25,7 @@ router
 .get(orderController.getOrderByCustomerId)
 router
 .route('/getOrderDetail/:orderId')
-.get(orderController.getOrderByCustomerId)
+.get(orderController.getOrderDetail)
 router
   .post('/orders/addService', orderController.addServiceToOrder);
 module.exports = router;
