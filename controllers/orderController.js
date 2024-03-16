@@ -1,5 +1,6 @@
 //getCartItems, addItemToCart, getOrderDetail, updateOrder, deleteOrder
 const Order = require('../models/orderModel');
+const Service = require('../models/serviceModel');
 
 exports.createOrder = async (req, res) => {
   try {
@@ -67,7 +68,12 @@ exports.getOrderDetail = async (req, res) => {
       .populate('Party')
       .populate('Service')
       .populate('Member');
-    res.status(200).json(data || 'Not found');
+
+      const service = await Service.find({ _id: { "$in" : data.extraService} });
+
+    res.status(200).json({
+      data, service
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
