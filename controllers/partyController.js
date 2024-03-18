@@ -41,18 +41,16 @@ exports.getPartyInfo = async (req, res) => {
 
 exports.getPartyByCategory = async (req, res) => {
     try {
-        const categoryName = req.query.categoryName;
+        const { categoryName } = req.params
 
         const data = await Party.find({})
             .populate({
                 path: 'category',
-                match: { name: categoryName } 
+                match: { name: categoryName }
             })
             .populate('hostId');
 
-        const filteredData = data.filter(party => party.category !== null && party.category !== undefined);
-
-        res.status(200).json(filteredData || []);
+        res.status(200).json(data || 'Not found');
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -68,7 +66,7 @@ exports.updateParty = async (req, res) => {
         if (existingParty) {
             return res.status(400).json({ message: 'Name already exists' });
         }
-        
+
         if (!isHost) {
             return res.status(500).json("Account must be a Host to Update");
         }
