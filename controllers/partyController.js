@@ -1,6 +1,7 @@
 //createParty, getAllParties, getPartyInfo, updateParty, deleteParty
 const Party = require('../models/partyModel')
-const Account = require('../models/account')
+const Account = require('../models/account');
+const Category = require('../models/categoryModel');
 exports.createParty = async (req, res) => {
     try {
         const nameExist = await Party.find({ name: req.body.name });
@@ -41,16 +42,19 @@ exports.getPartyInfo = async (req, res) => {
 
 exports.getPartyByCategory = async (req, res) => {
     try {
-        const { categoryName } = req.params
+        const { categoryName } = req.params;
+        const category = await Category.findOne({ name: categoryName });
 
-        const data = await Party.find({})
-            .populate({
-                path: 'category',
-                match: { name: categoryName }
-            })
-            .populate('hostId');
+        if (!category) {
+            return res.status(404).json('Not found category');
+        }
 
-        res.status(200).json(data || 'Not found');
+        const parties = await Party.find({ category: category._id })
+            .populate('category')
+            .populate('hostId')
+
+        console.log("total queried: " + parties.length);
+        res.status(200).json(parties || "not found");
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
