@@ -28,4 +28,6 @@ router
 .get(orderController.getOrderDetail)
 router
   .post('/orders/addService', orderController.addServiceToOrder);
+router
+  .put('/:orderId/prepare', orderController.updatePrepareStatus);
 module.exports = router;

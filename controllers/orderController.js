@@ -137,4 +137,25 @@ exports.getTotalBookingByDate = async (req, res, next) => {
     data: totalOrder
   });
 };
+exports.updatePrepareStatus = async (req, res) => {
+  const { orderId } = req.params;
+  const { prepare } = req.body;
+
+  try {
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    order.prepare = prepare;
+    await order.save();
+
+    res.json({ message: 'Prepare status updated successfully', order });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 
