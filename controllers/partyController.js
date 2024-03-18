@@ -39,6 +39,24 @@ exports.getPartyInfo = async (req, res) => {
     }
 };
 
+exports.getPartyByCategory = async (req, res) => {
+    try {
+        const categoryName = req.query.categoryName;
+
+        const data = await Party.find({})
+            .populate({
+                path: 'category',
+                match: { name: categoryName } 
+            })
+            .populate('hostId');
+
+        const filteredData = data.filter(party => party.category !== null && party.category !== undefined);
+
+        res.status(200).json(filteredData || []);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
 exports.updateParty = async (req, res) => {
     const updateData = req.body;
     const { partyId } = req.params;
