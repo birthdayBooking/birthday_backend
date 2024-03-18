@@ -1,11 +1,15 @@
 //createParty, getAllParties, getPartyInfo, updateParty, deleteParty
 const Party = require('../models/partyModel')
+
 const Account = require('../models/account')
 const Review = require('../models/reviewModel');
+const Category = require('../models/categoryModel');
 
 exports.createParty = async (req, res) => {
     try {
         const nameExist = await Party.find({ name: req.body.name });
+
+        console.log(req.body);
 
         if (nameExist.length > 0) {
             res.status(400).json({ message: `There are already exist Party named : ${req.body.name}` });
@@ -23,6 +27,7 @@ exports.createParty = async (req, res) => {
             await Review.create(defaultReview);
 
             res.status(201).json(newParty);
+
         }
 
     } catch (error) {
@@ -53,6 +58,25 @@ exports.getPartyInfo = async (req, res) => {
     }
 };
 
+exports.getPartyByCategory = async (req, res) => {
+    try {
+        const { categoryName } = req.params;
+        const category = await Category.findOne({ name: categoryName });
+
+        if (!category) {
+            return res.status(404).json('Not found category');
+        }
+
+        const parties = await Party.find({ category: category._id })
+            .populate('category')
+            .populate('hostId')
+
+        console.log("total queried: " + parties.length);
+        res.status(200).json(parties || "not found");
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
 exports.updateParty = async (req, res) => {
     const updateData = req.body;
     const { partyId } = req.params;
@@ -64,7 +88,7 @@ exports.updateParty = async (req, res) => {
         if (existingParty) {
             return res.status(400).json({ message: 'Name already exists' });
         }
-        
+
         if (!isHost) {
             return res.status(500).json("Account must be a Host to Update");
         }
