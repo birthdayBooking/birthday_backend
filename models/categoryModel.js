@@ -2,10 +2,12 @@ const mongoose = require('mongoose');
 //const validator = require('validator');
 const categorySchema = new mongoose.Schema(
   {
-    name:{
+    name: {
       type: String,
       required: true
-    }
+    },
+    image: String
+
   },
   {
     toJSON: { virtuals: true },
