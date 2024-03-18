@@ -1,6 +1,33 @@
 const mongoose = require('mongoose');
-const validator = require('validator');
-//name, category, perks, address, shortDetail, mainDetail, images, maxCustomers, price, rating 
+const { Schema } = mongoose;
+// const validator = require('validator');
+
+//name, category, perks, address, shortDetail, mainDetail, images, maxCustomers, price, rating
+const reviewSchema = new Schema(
+  {
+    rating: {
+      type: Number,
+      min: 1,
+      max: 5,
+      require: true
+    },
+    comment: {
+      type: String,
+      require: true
+    },
+    CustomerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Account',
+      required: true
+    },
+    OrderId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Order',
+      required: true
+    }
+  },
+  { timestamps: true }
+);
 const PartySchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
@@ -9,12 +36,12 @@ const PartySchema = new mongoose.Schema(
       ref: 'Account',
       required: true,
       validate: {
-        validator: async function (hostId) {
+        validator: async function(hostId) {
           const hostAccount = await mongoose.model('Account').findOne({ _id: hostId, role: 'host' });
           return !!hostAccount;
         },
-        message: 'Account Id must belong to a user with role "host"',
-      },
+        message: 'Account Id must belong to a user with role "host"'
+      }
     },
     category: {
       type: mongoose.Schema.Types.ObjectId,
@@ -33,22 +60,7 @@ const PartySchema = new mongoose.Schema(
       min: 1,
       max: 5
     },
-    reviews: [
-      {
-        customerId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'Account',
-          required: true
-        },
-        rating: {
-          type: Number,
-          required: true,
-          min: 1,
-          max: 5
-        },
-        comment: String
-      }
-    ]
+    reviews: [reviewSchema]
   },
   {
     toJSON: { virtuals: true },
