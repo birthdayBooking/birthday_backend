@@ -32,7 +32,23 @@ const PartySchema = new mongoose.Schema(
       type: Number,
       min: 1,
       max: 5
-    }
+    },
+    reviews: [
+      {
+        customerId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Account',
+          required: true
+        },
+        rating: {
+          type: Number,
+          required: true,
+          min: 1,
+          max: 5
+        },
+        comment: String
+      }
+    ]
   },
   {
     toJSON: { virtuals: true },

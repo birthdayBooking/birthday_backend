@@ -1,7 +1,10 @@
 //createParty, getAllParties, getPartyInfo, updateParty, deleteParty
 const Party = require('../models/partyModel')
-const Account = require('../models/account');
+
+const Account = require('../models/account')
+const Review = require('../models/reviewModel');
 const Category = require('../models/categoryModel');
+
 exports.createParty = async (req, res) => {
     try {
         const nameExist = await Party.find({ name: req.body.name });
@@ -12,16 +15,26 @@ exports.createParty = async (req, res) => {
             res.status(400).json({ message: `There are already exist Party named : ${req.body.name}` });
         } else {
             const newParty = await Party.create(req.body);
-            res.status(201).json({
-                statusCode: 201,
-                newParty
-            });
+
+            // Tạo một đánh giá mặc định cho party mới
+            const defaultReview = {
+                partyId: newParty._id,
+                customerId: req.body.hostId, // Hoặc sử dụng thông tin của một tài khoản mặc định nếu có
+                rating: 0, // Điểm đánh giá mặc định
+                comment: "Welcome to the party!" // Bình luận mặc định
+            };
+
+            await Review.create(defaultReview);
+
+            res.status(201).json(newParty);
+
         }
 
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
+
 exports.getAllParties = async (req, res) => {
     try {
         const data = await Party.find({}).populate('category').populate('hostId');
