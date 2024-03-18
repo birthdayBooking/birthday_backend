@@ -4,11 +4,16 @@ exports.createParty = async (req, res) => {
     try {
         const nameExist = await Party.find({ name: req.body.name });
 
+        console.log(req.body);
+
         if (nameExist.length > 0) {
             res.status(400).json({ message: `There are already exist Party named : ${req.body.name}` });
         } else {
             const newParty = await Party.create(req.body);
-            res.status(201).json(newParty);
+            res.status(201).json({
+                statusCode: 201,
+                newParty
+            });
         }
 
     } catch (error) {

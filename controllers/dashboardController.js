@@ -17,7 +17,7 @@ function getDateSelection(date) {
     dateSelected = { $eq: new Date(date) };
   }
 
-  return dateSelected
+  return dateSelected;
 }
 
 const getAnalyticsOfSystem = async (req, res) => {
@@ -54,7 +54,7 @@ const getPartyStats = async (req, res) => {
   ]);
   res.status(200).json({
     status: 'success',
-    partyStats
+    partyStats: partyStats[0]
   });
 };
 
@@ -84,9 +84,10 @@ const getTopBookingParty = async (req, res) => {
 
   // (2) query party by id
   const listParty = mostPopularBookingParty.map(item => {
-    return Party.findById(item._id)
+    const result = Party.findById(item._id)
       .lean()
       .select(getSelectData(['name', 'price', 'rating', 'createdAt']));
+    return result.then(party => ({ ...party, numsParty: item.numsParty }));
   });
 
   const topBookingParty = await Promise.all(listParty);
@@ -96,6 +97,7 @@ const getTopBookingParty = async (req, res) => {
     status: 'success',
     total: topBookingParty.length,
     topBookingParty
+    // mostPopularBookingParty
   });
 };
 
@@ -115,7 +117,7 @@ const getMonthlyBooking = async (req, res) => {
       $group: {
         _id: { $month: '$orderDate' },
         numsParty: { $sum: 1 },
-        partys: { $push: '$_id' }
+        parties: { $push: '$_id' }
       }
     },
     {
@@ -177,6 +179,8 @@ const getTotalRevanueByDate = async (req, res, next) => {
 
   const dateSelection = getDateSelection(date);
 
+  console.log(dateSelection);
+
   const revanue = await Order.aggregate([
     {
       $match: { orderDate: dateSelection }
@@ -184,7 +188,7 @@ const getTotalRevanueByDate = async (req, res, next) => {
     {
       $group: {
         _id: null,
-        totalRevanue: { $sum: '$total' },
+        totalRevanue: { $sum: '$total' }
         // revanueByGr: { $push: '$total' }
       }
     }
@@ -196,7 +200,7 @@ const getTotalRevanueByDate = async (req, res, next) => {
   });
 };
 
-
+// const getTotalRevanueBy
 
 module.exports = {
   getAnalyticsOfSystem,

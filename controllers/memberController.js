@@ -1,8 +1,11 @@
 const Account = require('../models/account');
+const { unselectData } = require('../utils');
 
-exports.getAllUsers = (req, res) => {
+exports.getAllUsers = async (req, res) => {
+  const users = await Account.find().select(unselectData(['id', '__v']));
   res.status(200).json({
-    message: 'abc'
+    status: 'success',
+    users
   });
 };
 
