@@ -13,6 +13,7 @@ const serviceRouter = require('./routes/serviceRouter');
 const messageRoutes = require('./routes/messageRoutes');
 const dashboardRouter = require('./routes/dashboardRoutes');
 const orderRouter = require('./routes/orderRouter');
+const reviewRouter = require('./routes/reviewRoutes');
 const order = require('./routes/order');
 
 const AppError = require('./utils/appError');
@@ -92,17 +93,15 @@ app.use('/test', (req, res, next) => {
 
 // 3) ROUTES
 app.use('/api/v1/accounts', accountRouter);
-
 app.use('/api/v1/messages', messageRoutes);
 app.use('/api/v1/parties', partyRouter);
-
-app.use('/api/v1/categories', categoryRouter)
-app.use('/api/v1/services', serviceRouter)
-app.use('/api/v1/orders', orderRouter)
-app.use('/api/v1/payment', order)
-
+app.use('/api/v1/categories', categoryRouter);
+app.use('/api/v1/services', serviceRouter);
+app.use('/api/v1/orders', orderRouter);
+app.use('/api/v1/payment', order);
 app.use('/api/v1/upload', uploadRouter);
 app.use('/api/v1/stats', dashboardRouter);
+app.use('/api/v1/reviews', reviewRouter);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

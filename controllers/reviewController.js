@@ -1,5 +1,6 @@
 const Review = require('../models/reviewModel');
 const Party = require('../models/partyModel');
+const Order = require('../models/orderModel');
 
 const getPartyReviews = async (req, res) => {
   try {
@@ -7,32 +8,6 @@ const getPartyReviews = async (req, res) => {
     res.json(reviews);
   } catch (err) {
     res.status(500).json({ message: err.message });
-  }
-};
-
-const createReview = async (req, res) => {
-  const review = new Review({
-    partyId: req.params.partyId,
-    customerId: req.body.customerId,
-    rating: req.body.rating,
-    comment: req.body.comment
-  });
-
-  try {
-    const newReview = await review.save();
-
-    // Cập nhật thông tin party sau khi thêm đánh giá
-    await Party.findOneAndUpdate(
-      { _id: req.params.partyId },
-      {
-        $push: { reviews: newReview._id }, // Thêm id của đánh giá vào mảng reviews của party
-        $inc: { rating: req.body.rating } // Tăng tổng điểm đánh giá của party
-      }
-    );
-
-    res.status(201).json(newReview);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
   }
 };
 
@@ -50,14 +25,15 @@ const deleteReview = async (req, res) => {
   }
 };
 
-const makeReview = async (req, res) => {
+const createReview = async (req, res) => {
   try {
     const { partyId, rating, comment, CustomerId, OrderId } = req.body;
 
-    const party = await Party.findById(partyId);
-
-    if (!party) {
-      return res.status(404).json({ error: 'Party not found' });
+    const [party, order] = await Promise.all([Party.findById(partyId), Order.findById(OrderId)]);
+    console.log(party);
+    console.log(order);
+    if (!party || !order) {
+      return res.status(404).json({ error: 'Party or Order not found' });
     }
 
     const newReview = {
@@ -74,10 +50,15 @@ const makeReview = async (req, res) => {
 
     await party.save();
 
-    res.status(200).json({ message: 'Review added successfully', party: party });
+    order.reviews = comment;
+    order.rating = rating;
+
+    await order.save();
+
+    res.status(200).json({ message: 'Review added successfully', order: order });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
-module.exports = { getPartyReviews, createReview, deleteReview, makeReview };
+module.exports = { getPartyReviews, deleteReview, createReview };

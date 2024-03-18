@@ -57,8 +57,7 @@ const PartySchema = new mongoose.Schema(
     price: { type: Number, required: true },
     rating: {
       type: Number,
-      min: 1,
-      max: 5
+      default: 5
     },
     reviews: [reviewSchema]
   },

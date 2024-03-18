@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema(
   {
-    customerId:{
+    customerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Member',
       required: true
@@ -13,14 +13,15 @@ const orderSchema = new mongoose.Schema(
       ref: 'Party',
       required: true
     },
-    extraService: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Service'
-    }],
+    extraService: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Service'
+      }
+    ],
     time: {
       type: String
-    }
-    ,
+    },
     total: {
       type: Number,
       required: true
@@ -38,9 +39,17 @@ const orderSchema = new mongoose.Schema(
       enum: ['waiting', 'success'],
       default: 'waiting'
     },
-    paymentMethod:  String,
+    paymentMethod: String,
     notes: String,
-  }, 
+    reviews: {
+      type: String
+    },
+    rating: {
+      type: Number,
+      min: 1,
+      max: 5
+    }
+  },
   {
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
