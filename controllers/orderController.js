@@ -67,7 +67,7 @@ exports.getOrderDetail = async (req, res) => {
       .populate('extraService')
       .populate('customerId');
 
-    res.status(200).json({data});
+    res.status(200).json({ data });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -143,6 +143,27 @@ exports.updatePrepareStatus = async (req, res) => {
     }
 
     order.prepare = prepare;
+    await order.save();
+
+    res.json({ message: 'Prepare status updated successfully', order });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+exports.updatePaymentStatus = async (req, res) => {
+  const { orderId } = req.params;
+  const { status } = req.body;
+
+  try {
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    order.status = status;
     await order.save();
 
     res.json({ message: 'Prepare status updated successfully', order });

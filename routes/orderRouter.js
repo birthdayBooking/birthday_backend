@@ -22,4 +22,6 @@ router.post('/orders/addService', orderController.addServiceToOrder);
 router.put('/:orderId/prepare', orderController.updatePrepareStatus);
 
 router.post('/check-availability', orderController.checkAvailability);
+
+router.post('/payment-status/:orderId', orderController.updatePaymentStatus);
 module.exports = router;
