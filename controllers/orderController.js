@@ -192,50 +192,34 @@ const MAX_ORDERS_PER_TIME_SLOT = 5; // Số lượng tối đa các đơn hàng 
 // };
 
 exports.checkAvailability = async (req, res) => {
-  const { orderDate, time, partyId } = req.body;
+  const { orderDate, time, address } = req.body;
 
   try {
-    console.log('orderDate:', orderDate);
-    console.log('time:', time);
     // Kiểm tra xem orderDate, time và partyId có hợp lệ không
-    if (!orderDate || !time || !partyId) {
+    if (!orderDate || !time || !address) {
       return res.status(400).json({ message: 'Vui lòng cung cấp orderDate, time và partyId' });
     }
 
-    // Kiểm tra định dạng của orderDate
-    const isValidDate = /^\d{4}-\d{2}-\d{2}$/.test(orderDate);
-    if (!isValidDate) {
-      return res.status(400).json({ message: 'Định dạng của orderDate không hợp lệ. Vui lòng sử dụng định dạng YYYY-MM-DD' });
-    }
+    const parsedOrderDate = new Date(orderDate);
 
-    // Tìm kiếm thông tin về bữa tiệc dựa trên partyId
-    const party = await Party.findById(partyId);
+    // const party = await Party.findById(partyId);
 
-    if (!party) {
-      return res.status(404).json({ message: 'Bữa tiệc không tồn tại' });
-    }
+    // if (!party) {
+    //   return res.status(404).json({ message: 'Bữa tiệc không tồn tại' });
+    // }
 
-    // const startOfDay = new Date(orderDate);
-    // startOfDay.setHours(0, 0, 0, 0); // Set giờ, phút, giây, và mili giây về 0
+    // const partyAddress = party.address;
 
-    // const endOfDay = new Date(orderDate);
-    // endOfDay.setHours(23, 59, 59, 999); // Set giờ, phút, giây, và mili giây về cuối ngày
-
-    // // Tìm kiếm tất cả các đơn hàng cho ngày cụ thể
-    // const orders = await Order.find({
-    //   orderDate: {
-    //     $gte: startOfDay,
-    //     $lte: endOfDay
-    //   },
-    //   partyId: partyId // partyId của bữa tiệc
-    // });
-
-    // console.log(orders);
     // Đếm số lượng đơn hàng cùng thời gian, ngày và địa chỉ của bữa tiệc
+    parsedOrderDate.setUTCHours(0, 0, 0, 0);
+
     const orderCount = await Order.countDocuments({
-      time: time // Thời gian muốn kiểm tra
-      // orderDate: orderDate, // Ngày muốn kiểm tra
-      // address: party.address // Địa chỉ của bữa tiệc
+      time: time, // Thời gian muốn kiểm tra
+      orderDate: {
+        $gte: parsedOrderDate, // this date
+        $lt: new Date(parsedOrderDate.getTime() + 24 * 60 * 60 * 1000) // next
+      }, // Ngày muốn kiểm tra
+      address: address
     });
 
     console.log(orderCount);
