@@ -15,9 +15,10 @@ router.get('/', function(req, res, next) {
 
 router.get('/create_payment_url', function(req, res, next) {
   const money = req.query.amount;
+  const mobileUrl = req.query.mobileUrl;
   const formatMoney = Number(money).toLocaleString('it-IT', { style: 'currency', currency: 'VND' });
 
-  res.render('order', { title: 'Tạo mới đơn hàng', amount: formatMoney });
+  res.render('order', { title: 'Tạo mới đơn hàng', amount: formatMoney, mobileUrl });
 });
 
 router.get('/querydr', function(req, res, next) {
@@ -33,6 +34,7 @@ router.get('/refund', function(req, res, next) {
 router.post('/create_payment_url', function(req, res, next) {
   process.env.TZ = 'Asia/Ho_Chi_Minh';
   const money = req.body.total;
+  const mobileUrl = req.body.mobileUrl;
   //format money to number
   const formatAmount = money.replace(/[^0-9]/g, '');
 
@@ -45,7 +47,7 @@ router.post('/create_payment_url', function(req, res, next) {
   let tmnCode = config.vnp_TmnCode;
   let secretKey = config.vnp_HashSecret;
   let vnpUrl = config.vnp_Url;
-  let returnUrl = config.vnp_ReturnUrl;
+  let returnUrl = mobileUrl ? mobileUrl : config.vnp_ReturnUrl;
   let orderId = moment(date).format('DDHHmmss');
   let total = formatAmount * 100;
   let bankCode = req.body.bankCode;
@@ -56,20 +58,20 @@ router.post('/create_payment_url', function(req, res, next) {
   }
   let currCode = 'VND';
   let vnp_Params = {};
-  vnp_Params["vnp_Version"] = "2.1.0";
-  vnp_Params["vnp_Command"] = "pay";
-  vnp_Params["vnp_TmnCode"] = tmnCode;
-  vnp_Params["vnp_Locale"] = locale;
-  vnp_Params["vnp_CurrCode"] = currCode;
-  vnp_Params["vnp_TxnRef"] = orderId;
-  vnp_Params["vnp_OrderInfo"] = "Thanh toan cho ma GD:" + orderId;
-  vnp_Params["vnp_OrderType"] = "other";
-  vnp_Params["vnp_Amount"] = total * 1;
-  vnp_Params["vnp_ReturnUrl"] = returnUrl;
-  vnp_Params["vnp_IpAddr"] = ipAddr;
-  vnp_Params["vnp_CreateDate"] = createDate;
-  if (bankCode !== null && bankCode !== "") {
-    vnp_Params["vnp_BankCode"] = bankCode;
+  vnp_Params['vnp_Version'] = '2.1.0';
+  vnp_Params['vnp_Command'] = 'pay';
+  vnp_Params['vnp_TmnCode'] = tmnCode;
+  vnp_Params['vnp_Locale'] = locale;
+  vnp_Params['vnp_CurrCode'] = currCode;
+  vnp_Params['vnp_TxnRef'] = orderId;
+  vnp_Params['vnp_OrderInfo'] = 'Thanh toan cho ma GD:' + orderId;
+  vnp_Params['vnp_OrderType'] = 'other';
+  vnp_Params['vnp_Amount'] = total * 1;
+  vnp_Params['vnp_ReturnUrl'] = returnUrl;
+  vnp_Params['vnp_IpAddr'] = ipAddr;
+  vnp_Params['vnp_CreateDate'] = createDate;
+  if (bankCode !== null && bankCode !== '') {
+    vnp_Params['vnp_BankCode'] = bankCode;
   }
 
   vnp_Params = sortObject(vnp_Params);

@@ -7,6 +7,8 @@ block content
     div.table-responsive
         form#createOrder(action='create_payment_url', method='POST')
             div.form-group
+                input.form-control#mobileUrl(name='mobileUrl', value=mobileUrl, type='hidden')
+            div.form-group
                 label Số tiền
                 input.form-control#amount(name='total', placeholder='Số tiền', value=amount)
 
