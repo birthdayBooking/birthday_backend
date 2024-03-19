@@ -166,7 +166,7 @@ exports.updatePaymentStatus = async (req, res) => {
     order.status = status;
     await order.save();
 
-    res.json({ message: 'Prepare status updated successfully', order });
+    res.status(200).json({ message: 'Prepare status updated successfully', order });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
