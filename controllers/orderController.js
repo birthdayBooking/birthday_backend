@@ -65,14 +65,12 @@ exports.getOrderDetail = async (req, res) => {
   try {
     const  _id  = req.params.orderId;
     const data = await Order.findById(_id)
-      .populate('Party')
-      .populate('Service')
-      .populate('Member');
-
-      const service = await Service.find({ _id: { "$in" : data.extraService} });
+      .populate('partyId')
+      .populate('extraService')
+      .populate('customerId');
 
     res.status(200).json({
-      data, service
+      data
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

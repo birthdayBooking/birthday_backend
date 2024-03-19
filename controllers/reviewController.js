@@ -27,11 +27,12 @@ const deleteReview = async (req, res) => {
 
 const createReview = async (req, res) => {
   try {
-    const { partyId, rating, comment, CustomerId, OrderId } = req.body;
+    const { partyId, rating, comment, customerId, OrderId } = req.body;
 
     const [party, order] = await Promise.all([Party.findById(partyId), Order.findById(OrderId)]);
     console.log(party);
     console.log(order);
+    
     if (!party || !order) {
       return res.status(404).json({ error: 'Party or Order not found' });
     }
@@ -39,7 +40,7 @@ const createReview = async (req, res) => {
     const newReview = {
       rating: rating,
       comment: comment,
-      CustomerId: CustomerId,
+      customerId: customerId,
       OrderId: OrderId
     };
 

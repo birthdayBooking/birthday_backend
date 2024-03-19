@@ -40,7 +40,7 @@ const resizeImage = (h, w) => {
           height: h,
           width: w,
           crop: 'scale',
-          format: 'jpg'
+          format: 'png'
         })
       };
     });

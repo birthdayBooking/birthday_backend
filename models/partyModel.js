@@ -15,7 +15,7 @@ const reviewSchema = new Schema(
       type: String,
       require: true
     },
-    CustomerId: {
+    customerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Account',
       required: true

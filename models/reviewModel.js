@@ -8,7 +8,7 @@ const ReviewSchema = new mongoose.Schema(
       ref: 'Party',
       required: true
     },
-    customerId: {
+    CustomerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Account',
       required: true
