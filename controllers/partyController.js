@@ -37,7 +37,14 @@ exports.createParty = async (req, res) => {
 
 exports.getAllParties = async (req, res) => {
     try {
-        const data = await Party.find({}).populate('category').populate('hostId');
+        const data = await Party.find({}).populate('category').populate('hostId')
+        .populate({
+            path: 'reviews',
+            populate: {
+                path: 'customerId',
+                model: 'Account'
+            }
+        })
         res.status(200).json(data || []);
     } catch (error) {
         res.status(500).json({ message: error.message });
