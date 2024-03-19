@@ -1,6 +1,7 @@
 //getCartItems, addItemToCart, getOrderDetail, updateOrder, deleteOrder
 const Order = require('../models/orderModel');
-const Service = require('../models/serviceModel');
+// const Service = require('../models/serviceModel');
+const Party = require('../models/partyModel');
 
 exports.createOrder = async (req, res) => {
   try {
@@ -21,35 +22,35 @@ exports.getCartItems = async (req, res) => {
 };
 exports.addServiceToOrder = async (req, res) => {
   try {
-      const { orderId, serviceId } = req.body;
+    const { orderId, serviceId } = req.body;
 
-      // Tìm đơn đặt hàng theo ID
-      const order = await Order.findById(orderId);
+    // Tìm đơn đặt hàng theo ID
+    const order = await Order.findById(orderId);
 
-      if (!order) {
-          return res.status(404).json({
-              status: 'fail',
-              message: 'Order not found'
-          });
+    if (!order) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'Order not found'
+      });
+    }
+
+    // Thêm dịch vụ vào đơn đặt hàng
+    order.services.push(serviceId);
+
+    // Lưu đơn đặt hàng đã cập nhật
+    await order.save();
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        order
       }
-
-      // Thêm dịch vụ vào đơn đặt hàng
-      order.services.push(serviceId);
-
-      // Lưu đơn đặt hàng đã cập nhật
-      await order.save();
-
-      res.status(200).json({
-          status: 'success',
-          data: {
-              order
-          }
-      });
+    });
   } catch (err) {
-      res.status(400).json({
-          status: 'error',
-          message: err.message
-      });
+    res.status(400).json({
+      status: 'error',
+      message: err.message
+    });
   }
 };
 exports.addItemToCart = async (req, res) => {
@@ -63,7 +64,7 @@ exports.addItemToCart = async (req, res) => {
 
 exports.getOrderDetail = async (req, res) => {
   try {
-    const  _id  = req.params.orderId;
+    const _id = req.params.orderId;
     const data = await Order.findById(_id)
       .populate('partyId')
       .populate('extraService')
@@ -112,11 +113,11 @@ exports.getOrderByCustomerId = async (req, res) => {
 
 exports.getTotalBookingByDate = async (req, res, next) => {
   let { date } = req.body;
-  
+
   if (!date) {
     date = new Date();
   } else {
-    date = new Date(date)
+    date = new Date(date);
   }
 
   const totalOrder = await Order.aggregate([
@@ -157,37 +158,94 @@ exports.updatePrepareStatus = async (req, res) => {
 };
 const MAX_ORDERS_PER_TIME_SLOT = 5; // Số lượng tối đa các đơn hàng cho mỗi khung giờ
 
+// exports.checkAvailability = async (req, res) => {
+//   const { orderDate, time } = req.query;
+
+//   try {
+//     console.log('orderDate:', orderDate);
+//     console.log('time:', time);
+//     // Kiểm tra xem orderDate và time có hợp lệ không
+//     if (!orderDate || !time) {
+//       return res.status(400).json({ message: 'Vui lòng cung cấp orderDate và time' });
+//     }
+
+//     // Kiểm tra định dạng của orderDate
+//     const isValidDate = /^\d{4}-\d{2}-\d{2}$/.test(orderDate);
+//     if (!isValidDate) {
+//       return res.status(400).json({ message: 'Định dạng của orderDate không hợp lệ. Vui lòng sử dụng định dạng YYYY-MM-DD' });
+//     }
+
+//     const orders = await Order.find({ time });
+
+//     const orderCount = await Order.countDocuments({
+//       time: time // Thời gian muốn kiểm tra
+//     });
+//     console.log(orderCount);
+//     if (orderCount >= MAX_ORDERS_PER_TIME_SLOT) {
+//       res.status(200).json({ available: false, message: 'Không có chỗ trống' });
+//     } else {
+//       res.status(200).json({ available: true, message: 'Còn chỗ trống' });
+//     }
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
+
 exports.checkAvailability = async (req, res) => {
-    const { orderDate, time } = req.query;
+  const { orderDate, time, partyId } = req.body;
 
-    try {
-        console.log("orderDate:", orderDate);
-        console.log("time:", time);
-        // Kiểm tra xem orderDate và time có hợp lệ không
-        if (!orderDate || !time) {
-            return res.status(400).json({ message: "Vui lòng cung cấp orderDate và time" });
-        }
-
-        // Kiểm tra định dạng của orderDate
-        const isValidDate = /^\d{4}-\d{2}-\d{2}$/.test(orderDate);
-        if (!isValidDate) {
-            return res.status(400).json({ message: "Định dạng của orderDate không hợp lệ. Vui lòng sử dụng định dạng YYYY-MM-DD" });
-        }
-
-        const orders = await Order.find({ time });
-
-        const orderCount = await Order.countDocuments({ 
-            time: time // Thời gian muốn kiểm tra
-        });
-
-        if (orderCount >= MAX_ORDERS_PER_TIME_SLOT) {
-            res.status(200).json({ available: false, message: "Không có chỗ trống" });
-        } else {
-            res.status(200).json({ available: true, message: "Còn chỗ trống" });
-        }
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+  try {
+    console.log('orderDate:', orderDate);
+    console.log('time:', time);
+    // Kiểm tra xem orderDate, time và partyId có hợp lệ không
+    if (!orderDate || !time || !partyId) {
+      return res.status(400).json({ message: 'Vui lòng cung cấp orderDate, time và partyId' });
     }
+
+    // Kiểm tra định dạng của orderDate
+    const isValidDate = /^\d{4}-\d{2}-\d{2}$/.test(orderDate);
+    if (!isValidDate) {
+      return res.status(400).json({ message: 'Định dạng của orderDate không hợp lệ. Vui lòng sử dụng định dạng YYYY-MM-DD' });
+    }
+
+    // Tìm kiếm thông tin về bữa tiệc dựa trên partyId
+    const party = await Party.findById(partyId);
+
+    if (!party) {
+      return res.status(404).json({ message: 'Bữa tiệc không tồn tại' });
+    }
+
+    // const startOfDay = new Date(orderDate);
+    // startOfDay.setHours(0, 0, 0, 0); // Set giờ, phút, giây, và mili giây về 0
+
+    // const endOfDay = new Date(orderDate);
+    // endOfDay.setHours(23, 59, 59, 999); // Set giờ, phút, giây, và mili giây về cuối ngày
+
+    // // Tìm kiếm tất cả các đơn hàng cho ngày cụ thể
+    // const orders = await Order.find({
+    //   orderDate: {
+    //     $gte: startOfDay,
+    //     $lte: endOfDay
+    //   },
+    //   partyId: partyId // partyId của bữa tiệc
+    // });
+
+    // console.log(orders);
+    // Đếm số lượng đơn hàng cùng thời gian, ngày và địa chỉ của bữa tiệc
+    const orderCount = await Order.countDocuments({
+      time: time // Thời gian muốn kiểm tra
+      // orderDate: orderDate, // Ngày muốn kiểm tra
+      // address: party.address // Địa chỉ của bữa tiệc
+    });
+
+    console.log(orderCount);
+
+    if (orderCount >= MAX_ORDERS_PER_TIME_SLOT) {
+      res.status(200).json({ available: false, message: 'Không có chỗ trống' });
+    } else {
+      res.status(200).json({ available: true, message: 'Còn chỗ trống' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
-
-

@@ -1,5 +1,5 @@
 const express = require('express');
-const orderController = require('./../controllers/orderController')
+const orderController = require('./../controllers/orderController');
 const { protect } = require('../controllers/authController');
 const catchAsync = require('../utils/catchAsync');
 const router = express.Router();
@@ -13,23 +13,13 @@ router
   .get(orderController.getOrderDetail)
   .patch(protect, orderController.updateOrder)
   .delete(orderController.deleteOrder);
-router
-  .route('/total-order')
-  .get(catchAsync(orderController.getTotalBookingByDate));
+router.route('/total-order').get(catchAsync(orderController.getTotalBookingByDate));
 
-router
-  .route('/create')
-  .post(orderController.createOrder);
-router
-.route('/getByIdCustomer/:customerId')
-.get(orderController.getOrderByCustomerId)
-router
-.route('/getOrderDetail/:orderId')
-.get(orderController.getOrderDetail)
-router
-  .post('/orders/addService', orderController.addServiceToOrder);
-router
-  .put('/:orderId/prepare', orderController.updatePrepareStatus);
+router.route('/create').post(orderController.createOrder);
+router.route('/getByIdCustomer/:customerId').get(orderController.getOrderByCustomerId);
+router.route('/getOrderDetail/:orderId').get(orderController.getOrderDetail);
+router.post('/orders/addService', orderController.addServiceToOrder);
+router.put('/:orderId/prepare', orderController.updatePrepareStatus);
 
-  router.get('/check-availability', orderController.checkAvailability);
+router.post('/check-availability', orderController.checkAvailability);
 module.exports = router;
