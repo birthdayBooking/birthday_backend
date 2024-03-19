@@ -30,4 +30,6 @@ router
   .post('/orders/addService', orderController.addServiceToOrder);
 router
   .put('/:orderId/prepare', orderController.updatePrepareStatus);
+
+  router.get('/check-availability', orderController.checkAvailability);
 module.exports = router;

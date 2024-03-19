@@ -155,5 +155,39 @@ exports.updatePrepareStatus = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+const MAX_ORDERS_PER_TIME_SLOT = 5; // Số lượng tối đa các đơn hàng cho mỗi khung giờ
+
+exports.checkAvailability = async (req, res) => {
+    const { orderDate, time } = req.query;
+
+    try {
+        console.log("orderDate:", orderDate);
+        console.log("time:", time);
+        // Kiểm tra xem orderDate và time có hợp lệ không
+        if (!orderDate || !time) {
+            return res.status(400).json({ message: "Vui lòng cung cấp orderDate và time" });
+        }
+
+        // Kiểm tra định dạng của orderDate
+        const isValidDate = /^\d{4}-\d{2}-\d{2}$/.test(orderDate);
+        if (!isValidDate) {
+            return res.status(400).json({ message: "Định dạng của orderDate không hợp lệ. Vui lòng sử dụng định dạng YYYY-MM-DD" });
+        }
+
+        const orders = await Order.find({ time });
+
+        const orderCount = await Order.countDocuments({ 
+            time: time // Thời gian muốn kiểm tra
+        });
+
+        if (orderCount >= MAX_ORDERS_PER_TIME_SLOT) {
+            res.status(200).json({ available: false, message: "Không có chỗ trống" });
+        } else {
+            res.status(200).json({ available: true, message: "Còn chỗ trống" });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
 
 
